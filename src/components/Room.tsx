@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, ContactShadows, Environment, Float, Sparkles, RoundedBox, Cylinder, useTexture, Text } from '@react-three/drei';
+import { OrbitControls, ContactShadows, Environment, Float, Sparkles, RoundedBox, Cylinder, useTexture, Text, Loader } from '@react-three/drei';
 import { useState, Suspense, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Star, Camera, Heart, Sparkles as SparklesIcon, Volume2, VolumeX } from 'lucide-react';
@@ -780,7 +780,6 @@ export default function Room() {
         src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Gymnop%C3%A9die_No._1.ogg" 
         loop 
         preload="auto"
-        crossOrigin="anonymous"
       />
 
       {/* 3D Canvas */}
@@ -808,8 +807,11 @@ export default function Room() {
 
         <Suspense fallback={null}>
           <RoomModel onInteract={(type, id, url) => setActivePopup({ type, id, url })} />
-          <Environment preset="city" />
           <ContactShadows position={[0, -0.99, 0]} opacity={0.6} scale={25} blur={2.5} far={4.5} color="#1e1b4b" />
+        </Suspense>
+        
+        <Suspense fallback={null}>
+          <Environment preset="city" />
         </Suspense>
 
         <OrbitControls 
@@ -823,6 +825,7 @@ export default function Room() {
           autoRotateSpeed={0.5}
         />
       </Canvas>
+      <Loader />
 
       {/* 2D UI Overlay */}
       <div className="absolute top-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/40 backdrop-blur-md rounded-full border border-white/60 text-pink-900 font-medium text-sm shadow-lg pointer-events-none flex items-center gap-2">

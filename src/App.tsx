@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import EntryScreen from './components/EntryScreen';
 import Room from './components/Room';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
   const [entered, setEntered] = useState(false);
@@ -17,7 +18,9 @@ export default function App() {
         {!entered ? (
           <EntryScreen key="entry" onEnter={() => setEntered(true)} />
         ) : (
-          <Room key="room" />
+          <ErrorBoundary key="room">
+            <Room />
+          </ErrorBoundary>
         )}
       </AnimatePresence>
     </div>
