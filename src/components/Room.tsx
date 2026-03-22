@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, ContactShadows, Environment, Float, Sparkles, RoundedBox, Cylinder, useTexture, Text, Loader } from '@react-three/drei';
+import { OrbitControls, ContactShadows, Float, Sparkles, RoundedBox, Cylinder, Text, Loader } from '@react-three/drei';
 import { useState, Suspense, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Star, Camera, Heart, Sparkles as SparklesIcon, Volume2, VolumeX } from 'lucide-react';
@@ -146,75 +146,6 @@ function Books({ position, count = 10, width = 2 }: { position: [number, number,
           </mesh>
         );
       })}
-    </group>
-  );
-}
-
-function Posters({ position, rotation, count = 6, seed = "poster", onInteract }: { position: [number, number, number], rotation: [number, number, number], count?: number, seed?: string, onInteract?: (type: 'poster', id: string, url: string) => void }) {
-  const posters = useMemo(() => {
-    // Use the uploaded image files
-    const imageUrls = [
-      '/poster1.jpeg',
-      '/poster2.jpeg',
-      '/poster3.jpeg',
-      '/poster4.jpeg',
-      '/poster5.jpeg',
-      '/poster6.jpeg'
-    ];
-    
-    return Array.from({ length: count }).map((_, i) => {
-      const isLandscape = Math.random() > 0.7;
-      const w = isLandscape ? 1.2 + Math.random() * 0.5 : 0.6 + Math.random() * 0.4;
-      const h = isLandscape ? 0.8 + Math.random() * 0.4 : 0.8 + Math.random() * 0.6;
-      
-      // Arrange in a 3-column grid
-      const cols = 3;
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      
-      const spacingX = 2.5;
-      const spacingY = 2.0;
-      
-      // Add a tiny bit of random offset and rotation for a natural "taped to wall" look
-      const x = (col - (cols - 1) / 2) * spacingX + (Math.random() - 0.5) * 0.3;
-      const y = (row - 0.5) * spacingY + (Math.random() - 0.5) * 0.3;
-      const rotZ = (Math.random() - 0.5) * 0.1;
-
-      return {
-        x,
-        y,
-        w,
-        h,
-        rotZ,
-        url: imageUrls[i % imageUrls.length]
-      };
-    });
-  }, [count]);
-
-  const textures = useTexture(posters.map(p => p.url));
-
-  return (
-    <group position={position} rotation={rotation}>
-      {posters.map((p, i) => (
-        <group key={i} position={[p.x, p.y, 0.01]} rotation={[0, 0, p.rotZ]}>
-          {/* Prominent Pink Frame */}
-          <mesh 
-            position={[0, 0, 0]} 
-            castShadow
-            onClick={(e) => { e.stopPropagation(); onInteract?.('poster', i.toString(), p.url); }}
-            onPointerOver={() => document.body.style.cursor = 'pointer'}
-            onPointerOut={() => document.body.style.cursor = 'auto'}
-          >
-            <boxGeometry args={[p.w + 0.15, p.h + 0.15, 0.04]} />
-            <meshStandardMaterial color="#f472b6" roughness={0.4} metalness={0.1} />
-          </mesh>
-          {/* Poster Image */}
-          <mesh position={[0, 0, 0.021]}>
-            <planeGeometry args={[p.w, p.h]} />
-            <meshStandardMaterial map={textures[i]} roughness={0.9} />
-          </mesh>
-        </group>
-      ))}
     </group>
   );
 }
@@ -437,16 +368,6 @@ function Doll({ position, rotation = [0, 0, 0], scale = 1, type, onInteract }: {
   );
 }
 
-function ComputerScreen({ url }: { url: string }) {
-  const texture = useTexture(url);
-  return (
-    <mesh position={[0, 0.6, 0.06]}>
-      <planeGeometry args={[1.7, 1.1]} />
-      <meshStandardMaterial map={texture} emissiveMap={texture} emissive="white" emissiveIntensity={0.5} />
-    </mesh>
-  );
-}
-
 function MagicalAtmosphere() {
   const orb1 = useRef<THREE.Mesh>(null);
   const orb2 = useRef<THREE.Mesh>(null);
@@ -503,6 +424,29 @@ function MagicalAtmosphere() {
   );
 }
 
+function Rug() {
+  return (
+    <group position={[0, 0.01, 0]}>
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[3.5, 64]} />
+        <meshStandardMaterial color="#fdf2f8" roughness={0.9} />
+      </mesh>
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
+        <ringGeometry args={[2.8, 3.2, 64]} />
+        <meshStandardMaterial color="#fbcfe8" roughness={0.9} />
+      </mesh>
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]}>
+        <ringGeometry args={[2.0, 2.4, 64]} />
+        <meshStandardMaterial color="#f9a8d4" roughness={0.9} />
+      </mesh>
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 0]}>
+        <circleGeometry args={[1.5, 64]} />
+        <meshStandardMaterial color="#f472b6" roughness={0.9} />
+      </mesh>
+    </group>
+  );
+}
+
 // --- Main Room Model ---
 
 function RoomModel({ onInteract }: { onInteract: (type: 'frame' | 'plushie' | 'poster' | 'doll', id: string, url?: string) => void }) {
@@ -513,6 +457,8 @@ function RoomModel({ onInteract }: { onInteract: (type: 'frame' | 'plushie' | 'p
         <planeGeometry args={[15, 15]} />
         <meshPhysicalMaterial color="#f472b6" transparent opacity={0.6} roughness={0.1} metalness={0.1} clearcoat={1} clearcoatRoughness={0.1} />
       </mesh>
+      
+      <Rug />
       
       {/* Walls */}
       <mesh receiveShadow position={[0, 4, -5]} castShadow>
@@ -534,10 +480,6 @@ function RoomModel({ onInteract }: { onInteract: (type: 'frame' | 'plushie' | 'p
       {/* Hanging Dreamcatchers */}
       <Dreamcatcher position={[-2, 5, -4.5]} scale={0.8} />
       <Dreamcatcher position={[3, 5.5, 2]} rotation={[0, Math.PI / 4, 0]} scale={0.6} />
-
-      {/* Posters */}
-      <Posters position={[0, 4, -4.8]} rotation={[0, 0, 0]} count={6} onInteract={onInteract} />
-      <Posters position={[-4.8, 4, 0]} rotation={[0, Math.PI / 2, 0]} count={6} onInteract={onInteract} />
 
       {/* Hanging Clouds */}
       <Cloud position={[2, 6, -2]} scale={0.8} />
@@ -621,8 +563,11 @@ function RoomModel({ onInteract }: { onInteract: (type: 'frame' | 'plushie' | 'p
           <RoundedBox position={[0, 0.6, 0]} args={[1.8, 1.2, 0.1]} radius={0.05} castShadow>
             <meshStandardMaterial color="#f8fafc" />
           </RoundedBox>
-          {/* Screen glow */}
-          <ComputerScreen url="/winter.jpeg" />
+          {/* Blank Screen */}
+          <mesh position={[0, 0.6, 0.06]}>
+            <planeGeometry args={[1.7, 1.1]} />
+            <meshStandardMaterial color="#0f172a" emissive="#0f172a" emissiveIntensity={0.2} />
+          </mesh>
           {/* Stand */}
           <mesh position={[0, 0.2, -0.05]} castShadow>
             <cylinderGeometry args={[0.05, 0.1, 0.4]} />
@@ -808,10 +753,6 @@ export default function Room() {
         <Suspense fallback={null}>
           <RoomModel onInteract={(type, id, url) => setActivePopup({ type, id, url })} />
           <ContactShadows position={[0, -0.99, 0]} opacity={0.6} scale={25} blur={2.5} far={4.5} color="#1e1b4b" />
-        </Suspense>
-        
-        <Suspense fallback={null}>
-          <Environment preset="city" />
         </Suspense>
 
         <OrbitControls 
